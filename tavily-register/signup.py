@@ -261,6 +261,9 @@ def fetch_page_with_captcha(session: requests.Session, url: str) -> dict:
     return result
 
 
+YESCAPTCHA_SOFT_ID = 102154
+
+
 def recognize_captcha_with_yescaptcha(captcha_base64: str, config: dict) -> str | None:
     """
     使用 YesCaptcha 识别验证码
@@ -300,6 +303,7 @@ def recognize_captcha_with_yescaptcha(captcha_base64: str, config: dict) -> str 
             "type": "ImageToTextTask",
             "body": png_base64,
         },
+        "softID": YESCAPTCHA_SOFT_ID,
     }
 
     try:
