@@ -3,7 +3,6 @@ import os
 import re
 import sys
 import time
-import uuid
 import random
 import string
 import secrets
@@ -230,8 +229,32 @@ def _gen_password() -> str:
     random.shuffle(base)
     return "".join(base)
 
+COMMON_FIRST_NAMES = [
+    "Adrian", "Aiden", "Alexander", "Andrew", "Anthony", "Ariana", "Ava", "Benjamin",
+    "Caleb", "Carter", "Charlotte", "Chloe", "Daniel", "David", "Dylan", "Eleanor",
+    "Elena", "Elijah", "Elizabeth", "Ella", "Emily", "Emma", "Ethan", "Evelyn",
+    "Gabriel", "Grace", "Hannah", "Henry", "Isabella", "Jack", "Jackson", "Jacob",
+    "James", "Julian", "Layla", "Leah", "Liam", "Lillian", "Logan", "Lucas",
+    "Madison", "Mason", "Mia", "Michael", "Nathan", "Noah", "Nora", "Olivia",
+    "Owen", "Samuel", "Scarlett", "Sophia", "Sophie", "Victoria", "William", "Zoe",
+]
+
+COMMON_LAST_NAMES = [
+    "Anderson", "Baker", "Bennett", "Brooks", "Brown", "Campbell", "Carter", "Clark",
+    "Collins", "Cooper", "Davis", "Edwards", "Evans", "Foster", "Garcia", "Gonzalez",
+    "Gray", "Green", "Hall", "Harris", "Hayes", "Hill", "Howard", "Hughes",
+    "Jackson", "Johnson", "Kelly", "King", "Lee", "Lewis", "Long", "Martinez",
+    "Miller", "Mitchell", "Moore", "Morgan", "Murphy", "Nelson", "Parker", "Perry",
+    "Peterson", "Phillips", "Price", "Reed", "Richardson", "Rivera", "Roberts", "Robinson",
+    "Ross", "Sanchez", "Scott", "Smith", "Stewart", "Taylor", "Thomas", "Turner",
+    "Walker", "Ward", "Watson", "White", "Williams", "Wilson", "Wood", "Wright",
+]
+
+
 def _random_name() -> str:
-    return ''.join(random.choice(string.ascii_lowercase) for _ in range(7)).capitalize()
+    first_name = random.choice(COMMON_FIRST_NAMES)
+    last_name = random.choice(COMMON_LAST_NAMES)
+    return f"{first_name} {last_name}"
 
 def _random_birthdate() -> str:
     start = datetime(1975, 1, 1); end = datetime(1999, 12, 31)
@@ -1166,7 +1189,7 @@ def main():
     parser.add_argument("--cpa-clean", action="store_true", help="注册后自动清理 CPA 失效账号")
     parser.add_argument("--cpa-upload", action="store_true", help="注册后自动上传 CPA")
     parser.add_argument("--cpa-target-count", type=int, default=300, help="目标 token 数(有效)")
-    parser.add_argument("--cpa-prune-local", action="store_true", help="上传成功后删除本地 token 文件与账号行")
+    parser.add_argument("--prune-local", action="store_true", help="上传成功后删除本地 token 文件与账号行（适用于 Sub2API / CPA）")
     args = parser.parse_args()
 
     tokens_dir = OUT_DIR / "tokens"
@@ -1215,16 +1238,17 @@ def main():
                 tokens = None
 
             # 3. 自动上传 Sub2API（可选）
+            sub2api_upload_ok = False
             if tokens and sub2api_settings.get("auto_upload") and sub2api_settings.get("base_url") and tokens.get("refresh_token"):
-                _push_account_to_sub2api(email, tokens, sub2api_settings)
+                sub2api_upload_ok = _push_account_to_sub2api(email, tokens, sub2api_settings)
 
             # 4. 上传 CPA（可选）
-            upload_ok = False
+            cpa_upload_ok = False
             if args.cpa_upload:
-                upload_ok = _upload_token_to_cpa(pm, token_json, email, proxy=args.proxy or "")
+                cpa_upload_ok = _upload_token_to_cpa(pm, token_json, email, proxy=args.proxy or "")
 
-            # 5. 上传成功后按需删除本地文件/账号行
-            if upload_ok and args.cpa_prune_local:
+            # 5. 上传成功后按需删除本地文件/账号行（Sub2API / CPA 任一成功即可）
+            if args.prune_local and (sub2api_upload_ok or cpa_upload_ok):
                 try:
                     if token_file.exists():
                         token_file.unlink()
