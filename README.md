@@ -17,6 +17,7 @@
 
 ### ⚠️ 重要提示
 - Tavily 官方目前已关闭邮箱注册，原有注册机目前不可用，后续更新请关注上方频道
+- openai-register 当前不可用，等待后续更新
 
 ### 💬 交流与反馈
 - TG 频道：https://t.me/MasterAlanLab

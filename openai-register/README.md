@@ -1,5 +1,7 @@
 # OpenAI 自动注册
 
+> ⚠️ 当前不可用，等待后续更新。
+
 ## 功能亮点
 - 支持两种临时邮箱：`TempMail.lol` 与 `GPTMail`，可手动指定，也可自动回退。
 - 支持自动上传到 Sub2API，优先使用全局 Admin API Key（`x-api-key`），无需先登录拿 bearer。
