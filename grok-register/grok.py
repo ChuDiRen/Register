@@ -252,14 +252,21 @@ def main():
         t = args.threads
     else:
         try:
-            t = int(input("\n并发数 (默认8): ").strip() or 8)
+            t = int(input("\n并发数 (默认1): ").strip() or 1)
         except:
-            t = 8
+            t = 1
     
     print(f"[*] 启动 {t} 个线程...")
     with concurrent.futures.ThreadPoolExecutor(max_workers=t) as executor:
         # 只提交与线程数相等的任务，让它们在内部无限循环
         futures = [executor.submit(register_single_thread, args.email_provider) for _ in range(t)]
+        try:
+            concurrent.futures.wait(futures)
+        except KeyboardInterrupt:
+            print("\n[!] 收到中断信号，准备退出...")
+
+if __name__ == "__main__":
+    main()(t)]
         try:
             concurrent.futures.wait(futures)
         except KeyboardInterrupt:
