@@ -266,11 +266,4 @@ def main():
             print("\n[!] 收到中断信号，准备退出...")
 
 if __name__ == "__main__":
-    main()(t)]
-        try:
-            concurrent.futures.wait(futures)
-        except KeyboardInterrupt:
-            print("\n[!] 收到中断信号，准备退出...")
-
-if __name__ == "__main__":
     main()
